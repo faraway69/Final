@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Census BLock Percentiles</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+<!--Load the chart libraries. Dimple is built on D3, and you need to also add D3-->
+<script charset="utf-8" src="https://d3js.org/d3.v4.min.js"></script>
+<script charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/dimple/2.3.0/dimple.latest.min.js"></script>
+    
+<style>
+    
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: white;
+        text-align: center;
+        padding: 30px;
+    }
+
+    #chartContainer {
+        max-width: 1000px;
+        margin: auto;
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+        margin-bottom: 5px;
+    }
+
+    p1 {
+        margin-top: 0;
+        color: #cbd5e1;
+        font-size: 16px;
+    }
+
+        p2 {
+        margin-top: 0;
+        color: #cbd5e1;
+        font-size: 14px;
+    }
+
+
+    select {
+        width: 20%;
+        margin-top: 15px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+</style>
+</head>
+
+<body>
+
+<!--This is the div container for the chart-->
+
+<div id="chartContainer">
+    <h2 id="charttitle">Census Block Environmental Condition Percentiles</h2>
+    <p1 id="chartsubhead">Colorado EnviroScreen 2.0, percentile ranking across Colorado communities:</p1> 
+        <p2> The higher the percentile, the more environmental burden per census block.</p2>
+    <p><select id="ImpactMenu"><option>Noise</option><option>Ozone</option><option>Toxic Air Emissions</option><option>Impaired Streams and Rivers</option><option>Wastewater Discharge</option><option>Drought</option></select></p>
+</div>
+
+
+
+<script>
+
+//The following statement loads the data from the CSV file, and then runs the function after the CSV is loaded. CityData is returned as an array containing the CSV data
+
+    // Paste here the github raw url of "CityData_WUP2018_top20.csv" data  
+      d3.csv("https://raw.githubusercontent.com/faraway69/Final/refs/heads/main/CensusBlocksv6.csv", function(CensusBlocks) {
+          
+            const dropdown = document.getElementById("ImpactMenu");
+
+
+            var svg = dimple.newSvg("#chartContainer", 840, 440); // The chart is an svg variable assigned to the chartcontainer div. It's width and height are also assigned here
+
+            var myChart = new dimple.chart(svg, CensusBlocks);  // Create the chart with CensusBlocks as the data input
+            myChart.setBounds(60, 15, 700, 300);            // Set the chart bounds within the svg container, top-left and bottom-right coords measured from top left
+
+            myChart.defaultColors = [
+                new dimple.color("#a755f7")
+            ];
+
+            var x = myChart.addCategoryAxis("x", "DataCenter");  // Define the x axis. In this example it is a category axis
+
+            var y = myChart.addMeasureAxis("y", dropdown.value.replace(/ /g,'')); // Define the y axis
+            //y.overrideMax = 100;
+            y.title = "Percentile";
+            var s = myChart.addSeries(null, dimple.plot.bar); // Plot a bar chart of the data
+
+            myChart.draw(500); // Draw the chart. The number is the animation delay in miliseconds
+
+            svg.selectAll("path.domain").style("stroke", "#CCC"); // These statements change the chart gridlines to a lighter grey colour
+            svg.selectAll("g.tick line").style("stroke", "#CCC");
+
+                    var select = document.getElementById("ImpactMenu");
+        
+        var chartdata;
+        
+            document.getElementById("ImpactMenu").onchange = function(){
+                var x = document.getElementById("ImpactMenu").value;
+                console.log(x);
+                svg.selectAll(".dimple-marker,.dimple-marker-back").remove();
+                myChart.data = CensusBlocks
+                myChart.draw(500)
+            }
+        
+})
+</script>
+
+</body>
+</html>
